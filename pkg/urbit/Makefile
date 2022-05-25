@@ -31,6 +31,9 @@ all_exes   = $(test_exes) $(bench_exes) ./build/urbit ./build/urbit-worker
 # -Wall issues all types of errors.  This is off (for now)
 CFLAGS := $(CFLAGS)
 
+# Link in static library produced by Rust IO crate.
+LDFLAGS := $(LDFLAGS) -L ./build/debug -lio
+
 ################################################################################
 
 .PHONY: all test clean mrproper
@@ -68,7 +71,7 @@ build/%_tests: $(common_objs) tests/%_tests.o
 	@mkdir -p ./build
 	@$(CC) $^ $(LDFLAGS) -o $@
 
-build/urbit: $(common_objs) $(daemon_objs)
+build/urbit: $(common_objs) $(daemon_objs) build/debug/libio.a
 	@echo CC -o $@
 	@mkdir -p ./build
 	@$(CC) $^ $(LDFLAGS) -o $@
@@ -77,6 +80,10 @@ build/urbit-worker: $(common_objs) $(worker_objs)
 	@echo CC -o $@
 	@mkdir -p ./build
 	@$(CC) $^ $(LDFLAGS) -o $@
+
+build/debug/libio.a: $(wildcard io/src/*.rs)
+	@mkdir -p ./build
+	@cd io && cargo build --target-dir ../build \
 
 # CCDEPS and CCEXTRA are empty except in MingW build,
 # which uses them to inject a C source transform step
