@@ -32,7 +32,7 @@ all_exes   = $(test_exes) $(bench_exes) ./build/urbit ./build/urbit-worker
 CFLAGS := $(CFLAGS)
 
 # Link in static library produced by Rust IO crate.
-LDFLAGS := $(LDFLAGS) -L ./build/debug -lio
+LDFLAGS := $(LDFLAGS) -L ./build/debug -lm -lio
 
 ################################################################################
 
@@ -61,12 +61,12 @@ mrproper: clean
 
 ################################################################################
 
-build/ur_bench: $(common_objs) bench/ur_bench.o
+build/ur_bench: $(common_objs) bench/ur_bench.o build/debug/libio.a
 	@echo CC -o $@
 	@mkdir -p ./build
 	@$(CC) $^ $(LDFLAGS) -o $@
 
-build/%_tests: $(common_objs) tests/%_tests.o
+build/%_tests: $(common_objs) tests/%_tests.o build/debug/libio.a
 	@echo CC -o $@
 	@mkdir -p ./build
 	@$(CC) $^ $(LDFLAGS) -o $@
@@ -81,7 +81,7 @@ build/urbit-worker: $(common_objs) $(worker_objs)
 	@mkdir -p ./build
 	@$(CC) $^ $(LDFLAGS) -o $@
 
-build/debug/libio.a: $(wildcard io/src/*.rs)
+build/debug/libio.a: $(wildcard io/src/*.rs) $(wildcard io/src/*/*.rs)
 	@mkdir -p ./build
 	@cd io && cargo build --target-dir ../build \
 
