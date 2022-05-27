@@ -228,11 +228,12 @@ _io_kick(u3_auto* driver_u, u3_noun wire, u3_noun card)
 
   HttpClient* client_u = (HttpClient*)driver_u;
   if ( c3y == u3r_sing_c("request", tag) ) {
-    HttpRequest req_u;
-    if ( !_parse_request(data, &req_u) ) {
+    HttpRequest* req_u = c3_malloc(sizeof(*req_u));
+    if ( !_parse_request(data, req_u) ) {
       goto end;
     }
-    suc_o = http_schedule_request(client_u, &req_u) ? c3y : c3n;
+    suc_o = http_schedule_request(client_u, req_u) ? c3y : c3n;
+    // TODO: ensure req_u doesn't leak.
   }
   else if ( c3y == u3r_sing_c("cancel-request", tag) ) {
     // TODO: cancel request

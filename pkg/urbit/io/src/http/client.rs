@@ -1,5 +1,5 @@
 use crate::{runtime, Bool};
-use std::{ffi::CStr, os::raw::c_char, rc::Rc, slice};
+use std::{collections::HashMap, ffi::CStr, os::raw::c_char, rc::Rc, slice};
 use tokio::runtime::Runtime;
 
 #[repr(C)]
@@ -26,30 +26,15 @@ pub struct HttpRequest {
 
 #[repr(C)]
 pub struct HttpHeader {
-    key: *const u8,
-    val: *const u8,
+    key: *const c_char,
+    val: *const c_char,
 }
 
 #[repr(C)]
 pub struct HttpBody(*const c_char);
 
-async fn send_request() {}
-
-#[no_mangle]
-pub extern "C" fn http_client_init(instance_num: u32) -> *mut HttpClient {
-    let client = Box::new(HttpClient {
-        driver: [0; 88],
-        runtime: Rc::into_raw(runtime()),
-        instance_num,
-    });
-    Box::into_raw(client)
-}
-
-#[no_mangle]
-pub extern "C" fn http_schedule_request(client: *mut HttpClient, req: *const HttpRequest) -> Bool {
-    let client = unsafe { Box::from_raw(client) };
-    let req = unsafe { &*req };
-
+async fn send_request(/*req: &HttpRequest*/) {
+    /*
     let domain = if let Some(domain) = req.domain {
         let domain = unsafe { CStr::from_ptr(domain).to_str().unwrap() };
     } else {
@@ -70,6 +55,13 @@ pub extern "C" fn http_schedule_request(client: *mut HttpClient, req: *const Htt
 
     let headers = if let Some(headers) = req.headers {
         let headers = unsafe { slice::from_raw_parts(headers, req.headers_len as usize) };
+        let mut map = HashMap::new();
+        for header in headers {
+            let key = unsafe { CStr::from_ptr(header.key).to_str().unwrap() };
+            let val = unsafe { CStr::from_ptr(header.val).to_str().unwrap() };
+            assert_eq!(map.insert(key, val), None);
+        }
+        map
     } else {
         unimplemented!();
     };
@@ -79,8 +71,26 @@ pub extern "C" fn http_schedule_request(client: *mut HttpClient, req: *const Htt
     } else {
         unimplemented!();
     };
+    */
+}
 
-    // Spawn a send_request() task.
+#[no_mangle]
+pub extern "C" fn http_client_init(instance_num: u32) -> *mut HttpClient {
+    let client = Box::new(HttpClient {
+        driver: [0; 88],
+        runtime: Rc::into_raw(runtime()),
+        instance_num,
+    });
+    Box::into_raw(client)
+}
+
+#[no_mangle]
+pub extern "C" fn http_schedule_request(client: *mut HttpClient, req: *const HttpRequest) -> Bool {
+    let client = unsafe { Box::from_raw(client) };
+    let runtime = unsafe { Rc::from_raw(client.runtime) };
+    let req = unsafe { &*req };
+
+    runtime.spawn(send_request(/*req*/));
 
     Box::into_raw(client);
     Bool::False
