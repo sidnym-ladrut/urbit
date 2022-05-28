@@ -1,6 +1,13 @@
-use crate::{runtime, Bool};
-use std::{collections::HashMap, ffi::CStr, os::raw::c_char, rc::Rc, slice};
+use crate::{
+    http::{HttpBody, HttpHeader, HttpRequest},
+    runtime, Bool,
+};
+use std::{collections::HashMap, ffi::CStr, rc::Rc, slice};
 use tokio::runtime::Runtime;
+
+//==================================================================================================
+// Public
+//==================================================================================================
 
 #[repr(C)]
 pub struct HttpClient {
@@ -10,32 +17,38 @@ pub struct HttpClient {
     instance_num: u32,
 }
 
-#[repr(C)]
-pub struct HttpRequest {
-    req_num: u32,
-    domain: Option<*const c_char>,
-    ip: u32,
-    port: u16,
-    use_tls: Bool,
-    url: Option<*const c_char>,
-    method: Option<*const c_char>,
-    headers: Option<*const HttpHeader>,
-    headers_len: u32,
-    body: Option<*const HttpBody>,
+#[no_mangle]
+pub extern "C" fn http_client_init(instance_num: u32) -> *mut HttpClient {
+    let client = Box::new(HttpClient {
+        driver: [0; 88],
+        runtime: Rc::into_raw(runtime()),
+        instance_num,
+    });
+    Box::into_raw(client)
 }
 
-// TODO: verify, but it should be fine for HttpRequest to be Sync (i.e. references shared between
-// threads) because we'll never mutate the request.
-unsafe impl Sync for HttpRequest {}
+#[no_mangle]
+pub extern "C" fn http_schedule_request(client: *mut HttpClient, req: *const HttpRequest) -> Bool {
+    let client = unsafe { Box::from_raw(client) };
+    let runtime = unsafe { Rc::from_raw(client.runtime) };
+    let req = unsafe { &*req };
 
-#[repr(C)]
-pub struct HttpHeader {
-    key: *const c_char,
-    val: *const c_char,
+    runtime.spawn(send_request(req));
+
+    Box::into_raw(client);
+    Bool::False
 }
 
-#[repr(C)]
-pub struct HttpBody(*const c_char);
+#[no_mangle]
+pub extern "C" fn http_client_deinit(client: *mut HttpClient) {
+    unsafe {
+        Box::from_raw(client);
+    }
+}
+
+//==================================================================================================
+// Private
+//==================================================================================================
 
 async fn send_request(req: &HttpRequest) {
     let domain = if let Some(domain) = req.domain {
@@ -74,33 +87,4 @@ async fn send_request(req: &HttpRequest) {
     } else {
         unimplemented!();
     };
-}
-
-#[no_mangle]
-pub extern "C" fn http_client_init(instance_num: u32) -> *mut HttpClient {
-    let client = Box::new(HttpClient {
-        driver: [0; 88],
-        runtime: Rc::into_raw(runtime()),
-        instance_num,
-    });
-    Box::into_raw(client)
-}
-
-#[no_mangle]
-pub extern "C" fn http_schedule_request(client: *mut HttpClient, req: *const HttpRequest) -> Bool {
-    let client = unsafe { Box::from_raw(client) };
-    let runtime = unsafe { Rc::from_raw(client.runtime) };
-    let req = unsafe { &*req };
-
-    runtime.spawn(send_request(req));
-
-    Box::into_raw(client);
-    Bool::False
-}
-
-#[no_mangle]
-pub extern "C" fn http_client_deinit(client: *mut HttpClient) {
-    unsafe {
-        Box::from_raw(client);
-    }
 }

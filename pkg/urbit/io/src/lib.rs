@@ -3,10 +3,9 @@ use tokio::runtime::{Builder, Runtime};
 
 mod http;
 
-/// Tokio runtime shared by all IO drivers. That this requires a global variable is an unfortunate
-/// side effect of the entry point to the Urbit runtime remaining in C, which prevents us from
-/// using a `#[tokio::main]` decorated main function.
-static mut RT: Option<Rc<Runtime>> = None;
+//==================================================================================================
+// Public
+//==================================================================================================
 
 /// FFI-safe boolean type.
 #[derive(Debug)]
@@ -15,6 +14,15 @@ pub enum Bool {
     False = 0,
     True = 1,
 }
+
+//==================================================================================================
+// Private
+//==================================================================================================
+
+/// Tokio runtime shared by all IO drivers. That this requires a global variable is an unfortunate
+/// side effect of the entry point to the Urbit runtime remaining in C, which prevents us from
+/// using a `#[tokio::main]` decorated main function.
+static mut RT: Option<Rc<Runtime>> = None;
 
 /// Get the Tokio runtime shared by all IO drivers.
 fn runtime() -> Rc<Runtime> {
