@@ -2,6 +2,7 @@ use crate::{
     http::{HttpBody, HttpHeader, HttpRequest},
     runtime, Bool,
 };
+use hyper::{client::HttpConnector, Client};
 use std::{collections::HashMap, ffi::CStr, rc::Rc, slice};
 use tokio::runtime::Runtime;
 
@@ -14,14 +15,17 @@ pub struct HttpClient {
     /// Reserved space for the u3_auto handle on the C side.
     driver: [u8; 88],
     runtime: *const Runtime,
+    hyper: *const Client<HttpConnector>,
     instance_num: u32,
 }
 
 #[no_mangle]
 pub extern "C" fn http_client_init(instance_num: u32) -> *mut HttpClient {
+    let hyper = Box::new(Client::new());
     let client = Box::new(HttpClient {
         driver: [0; 88],
         runtime: Rc::into_raw(runtime()),
+        hyper: Box::into_raw(hyper),
         instance_num,
     });
     Box::into_raw(client)

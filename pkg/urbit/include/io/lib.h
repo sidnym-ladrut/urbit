@@ -3,16 +3,9 @@
 
 #include "vere/vere.h"
 
-
 //==============================================================================
-// client.rs
+// src/http/mod.rs
 //==============================================================================
-
-typedef struct {
-  u3_auto driver_u;
-  void*   runtime_v;
-  c3_w    instance_num_w;
-} HttpClient;
 
 typedef struct {
   c3_c* key_c; //!< header key
@@ -37,6 +30,18 @@ typedef struct {
   c3_w        headers_len_w; //!< Number of HTTP request headers.
   HttpBody    body_u;        //!< HTTP request body.
 } HttpRequest;
+
+
+//==============================================================================
+// src/http/client.rs
+//==============================================================================
+
+typedef struct {
+  u3_auto driver_u;
+  void*   runtime_v;
+  void*   hyper_v;
+  c3_w    instance_num_w;
+} HttpClient;
 
 HttpClient*
 http_client_init(c3_w instance_num_w);

@@ -7,6 +7,9 @@ edition = "2021"
 crate-type = ["staticlib"]
 
 [dependencies]
+# We surely will only use a subset of hyper's features, but stick with the full
+# feature set for now.
+hyper = { version = "0.14", features = ["full"] }
 # We surely will only use a subset of tokio's features, but stick with the full
 # feature set for now.
 tokio = { version = "1", features = ["full"] }
