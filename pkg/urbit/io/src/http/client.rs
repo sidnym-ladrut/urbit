@@ -24,6 +24,10 @@ pub struct HttpRequest {
     body: Option<*const HttpBody>,
 }
 
+// TODO: verify, but it should be fine for HttpRequest to be Sync (i.e. references shared between
+// threads) because we'll never mutate the request.
+unsafe impl Sync for HttpRequest {}
+
 #[repr(C)]
 pub struct HttpHeader {
     key: *const c_char,
@@ -33,8 +37,7 @@ pub struct HttpHeader {
 #[repr(C)]
 pub struct HttpBody(*const c_char);
 
-async fn send_request(/*req: &HttpRequest*/) {
-    /*
+async fn send_request(req: &HttpRequest) {
     let domain = if let Some(domain) = req.domain {
         let domain = unsafe { CStr::from_ptr(domain).to_str().unwrap() };
     } else {
@@ -71,7 +74,6 @@ async fn send_request(/*req: &HttpRequest*/) {
     } else {
         unimplemented!();
     };
-    */
 }
 
 #[no_mangle]
@@ -90,7 +92,7 @@ pub extern "C" fn http_schedule_request(client: *mut HttpClient, req: *const Htt
     let runtime = unsafe { Rc::from_raw(client.runtime) };
     let req = unsafe { &*req };
 
-    runtime.spawn(send_request(/*req*/));
+    runtime.spawn(send_request(req));
 
     Box::into_raw(client);
     Bool::False
