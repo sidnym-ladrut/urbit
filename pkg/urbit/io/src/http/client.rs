@@ -39,15 +39,21 @@ pub extern "C" fn http_schedule_request(client: *mut HttpClient, req: *const Htt
 
     runtime.spawn(send_request(req));
 
+    // Prevent these from being dropped.
+    Rc::into_raw(runtime);
     Box::into_raw(client);
+
     Bool::False
 }
 
 #[no_mangle]
 pub extern "C" fn http_client_deinit(client: *mut HttpClient) {
-    unsafe {
-        Box::from_raw(client);
-    }
+    // Convert the raw pointers back to smart pointers so that they get dropped.
+    let client = unsafe { Box::from_raw(client) };
+    let runtime = unsafe { Rc::from_raw(client.runtime) };
+    // We could make the `hyper` field of `HttpClient` mutable and avoid this
+    // cast, but it doesn't need to be.
+    let hyper = unsafe { Box::from_raw(client.hyper as *mut Client<HttpConnector>) };
 }
 
 //==================================================================================================
