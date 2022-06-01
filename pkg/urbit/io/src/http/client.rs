@@ -1,5 +1,5 @@
 use crate::{
-    cstr_to_string,
+    cstr_to_str,
     http::{Receiver, Request},
     Bool, StrPair, RUNTIME,
 };
@@ -51,39 +51,37 @@ pub extern "C" fn http_schedule_request(
     body: *const c_char,
     receiver: Receiver,
 ) -> Bool {
-    /*
     if client.is_null() {
         return Bool::False;
     }
     let mut client = unsafe { Box::from_raw(client) };
 
     let req = {
-        let mut req = hyper::http::request::Builder::new();
+        let use_tls: bool = use_tls.into();
+        let uri = {
+            let prefix = "http://";
+            if let Some(domain) = cstr_to_str(domain) {
+                format!("{}{}", prefix, domain)
+            } else {
+                format!("{}{}:{}", prefix, ip, port)
+            }
+        };
+        let method = cstr_to_str(method).expect("method could not be converted");
 
-        // TODO: URI.
+        let mut req = hyper::Request::builder().uri(uri).method(method);
 
-        // Method.
-        let method = cstr_to_string(method).unwrap();
-        req.method(method);
-
-        // Headers.
         if headers_len > 0 {
             let headers = unsafe { slice::from_raw_parts(headers, headers_len as usize) };
             for header in headers {
-                // TODO: reduce (presumably) unnecessary allocations.
-                let key = cstr_to_string(header.0).unwrap();
-                let val = cstr_to_string(header.1).unwrap();
-                req.header(key, val);
+                let key = cstr_to_str(header.0).expect("header key could not be converted");
+                let val = cstr_to_str(header.1).expect("header val could not be converted");
+                req = req.header(key, val);
             }
         }
 
-        // Body.
-        match cstr_to_string(body) {
-            Some(body) => req.body(body),
-            None => req.body(String::new()),
-        }
+        let body = cstr_to_str(body).unwrap_or("");
+        req.body(body).expect("request could not be compiled")
     };
-    */
 
     /*
     let domain = cstr_to_string(domain);
@@ -95,7 +93,7 @@ pub extern "C" fn http_schedule_request(
         let headers = unsafe { slice::from_raw_parts(headers, headers_len as usize) };
         let mut map = HashMap::new();
         for header in headers {
-            let key = cstr_to_string(header.0).unwrap();
+        let key = cstr_to_string(header.0).unwrap();
             let val = cstr_to_string(header.1).unwrap();
             map.insert(key, val);
         }

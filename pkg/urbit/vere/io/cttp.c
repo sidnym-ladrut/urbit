@@ -258,7 +258,20 @@ _io_kick(u3_auto* driver_u, u3_noun wire, u3_noun card)
     if ( !_parse_request(data, &req_u) ) {
       goto end;
     }
-    //suc_o = http_schedule_request(client_u, req_u) ? c3y : c3n;
+    suc_o = http_schedule_request(client_u,
+                                  req_u.req_num_l,
+                                  req_u.domain_c,
+                                  req_u.ip_w,
+                                  req_u.port_s,
+                                  req_u.use_tls_t,
+                                  req_u.url_c,
+                                  req_u.method_c,
+                                  req_u.headers_u,
+                                  req_u.headers_len_w,
+                                  req_u.body_c,
+                                  _receive_request)
+            ? c3y
+            : c3n;
     // TODO: ensure req_u's fields doesn't leak.
   }
   else if ( c3y == u3r_sing_c("cancel-request", tag) ) {

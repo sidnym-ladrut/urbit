@@ -50,13 +50,11 @@ lazy_static! {
         .unwrap();
 }
 
-fn cstr_to_string(string: *const c_char) -> Option<String> {
+fn cstr_to_str(string: *const c_char) -> Option<&'static str> {
     use std::ffi::CStr;
     if string.is_null() {
         None
     } else {
-        let string = unsafe { CStr::from_ptr(string) };
-        let string = string.to_str().ok()?;
-        Some(String::from(string))
+        unsafe { CStr::from_ptr(string).to_str().ok() }
     }
 }
