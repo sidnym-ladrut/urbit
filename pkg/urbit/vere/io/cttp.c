@@ -242,6 +242,7 @@ _io_talk(u3_auto* driver_u)
 static c3_o
 _io_kick(u3_auto* driver_u, u3_noun wire, u3_noun card)
 {
+  fprintf(stderr, "peter: kicking HTTP client driver\r\n");
   c3_o suc_o = c3n;
 
   u3_noun tag, data, wire_head;
@@ -255,9 +256,19 @@ _io_kick(u3_auto* driver_u, u3_noun wire, u3_noun card)
   Client* client_u = (Client*)driver_u;
   if ( c3y == u3r_sing_c("request", tag) ) {
     _request req_u;
+    fprintf(stderr, "peter: parsing HTTP request\r\n");
     if ( !_parse_request(data, &req_u) ) {
       goto end;
     }
+    fprintf(stderr, "peter: req_u.req_num_l=%u\r\n", req_u.req_num_l);
+    fprintf(stderr, "peter: req_u.domain_c=%s\r\n", req_u.domain_c);
+    fprintf(stderr, "peter: req_u.ip_w=%u\r\n", req_u.ip_w);
+    fprintf(stderr, "peter: req_u.port_s=%u\r\n", req_u.port_s);
+    fprintf(stderr, "peter: req_u.use_tls_t=%u\r\n", req_u.use_tls_t);
+    fprintf(stderr, "peter: req_u.url_c=%s\r\n", req_u.url_c);
+    fprintf(stderr, "peter: req_u.method_c=%s\r\n", req_u.method_c);
+    fprintf(stderr, "peter: req_u.headers_len_w=%u\r\n", req_u.headers_len_w);
+    fprintf(stderr, "peter: req_u.body_c=%s\r\n", req_u.body_c);
     suc_o = http_schedule_request(client_u,
                                   req_u.req_num_l,
                                   req_u.domain_c,
@@ -304,6 +315,7 @@ _io_exit(u3_auto* driver_u)
 u3_auto*
 u3_cttp_io_init(u3_pier* pier_u)
 {
+  fprintf(stderr, "peter: initializing HTTP client\r\n");
   c3_w now_mug_w;
   {
     u3_noun now;

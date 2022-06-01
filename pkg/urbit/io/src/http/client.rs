@@ -60,10 +60,11 @@ pub extern "C" fn http_schedule_request(
         let use_tls: bool = use_tls.into();
         let uri = {
             let prefix = "http://";
+            let url = cstr_to_str(url).unwrap_or("/");
             if let Some(domain) = cstr_to_str(domain) {
-                format!("{}{}", prefix, domain)
+                format!("{}{}:{}{}", prefix, domain, port, url)
             } else {
-                format!("{}{}:{}", prefix, ip, port)
+                format!("{}{}:{}{}", prefix, ip, port, url)
             }
         };
         let method = cstr_to_str(method).expect("method could not be converted");
@@ -83,26 +84,8 @@ pub extern "C" fn http_schedule_request(
         req.body(body).expect("request could not be compiled")
     };
 
-    /*
-    let domain = cstr_to_string(domain);
-    let ip = if domain.is_some() { None } else { Some(ip) };
-    let use_tls = use_tls.into();
-    let url = cstr_to_string(url).unwrap();
-    let method = cstr_to_string(method).unwrap();
-    let headers = if headers_len > 0 {
-        let headers = unsafe { slice::from_raw_parts(headers, headers_len as usize) };
-        let mut map = HashMap::new();
-        for header in headers {
-        let key = cstr_to_string(header.0).unwrap();
-            let val = cstr_to_string(header.1).unwrap();
-            map.insert(key, val);
-        }
-        Some(map)
-    } else {
-        None
-    };
-    let body = cstr_to_string(body);
-    */
+    // spawn client.hyper(req)
+
     Bool::False
 }
 
