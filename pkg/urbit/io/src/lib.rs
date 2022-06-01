@@ -1,11 +1,10 @@
-use std::rc::Rc;
-use tokio::runtime::{Builder, Runtime};
+#[macro_use]
+extern crate lazy_static;
+
+use std::os::raw::c_char;
+use tokio::runtime;
 
 mod http;
-
-//==================================================================================================
-// Public
-//==================================================================================================
 
 /// FFI-safe boolean type.
 #[derive(Debug)]
@@ -15,31 +14,49 @@ pub enum Bool {
     True = 1,
 }
 
-//==================================================================================================
-// Private
-//==================================================================================================
-
-/// Tokio runtime shared by all IO drivers. That this requires a global variable is an unfortunate
-/// side effect of the entry point to the Urbit runtime remaining in C, which prevents us from
-/// using a `#[tokio::main]` decorated main function.
-static mut RT: Option<Rc<Runtime>> = None;
-
-/// Get the Tokio runtime shared by all IO drivers.
-fn runtime() -> Rc<Runtime> {
-    if unsafe { RT.is_none() } {
-        match Builder::new_multi_thread()
-            .worker_threads(1)
-            .enable_all()
-            .build()
-        {
-            Ok(runtime) => {
-                let runtime = Some(Rc::new(runtime));
-                unsafe { RT = runtime };
-            }
-            // TODO: log error if attempt to build runtime fails.
-            Err(_) => panic!(),
+impl From<bool> for Bool {
+    fn from(b: bool) -> Self {
+        if b {
+            Self::True
+        } else {
+            Self::False
         }
     }
-    let runtime = unsafe { RT.as_ref().unwrap() };
-    Rc::clone(runtime)
+}
+
+impl From<Bool> for bool {
+    fn from(b: Bool) -> Self {
+        match b {
+            Bool::True => true,
+            Bool::False => false,
+        }
+    }
+}
+
+/// FFI-safe tuple type.
+#[repr(C)]
+pub struct StrPair(*const c_char, *const c_char);
+
+// Public
+//==================================================================================================
+// Private
+
+lazy_static! {
+    /// IMPORTANT: we can't use a multi-thread runtime here because of the callback model used by
+    /// the HTTP client.
+    static ref RUNTIME: runtime::Runtime = runtime::Builder::new_current_thread()
+        .enable_all()
+        .build()
+        .unwrap();
+}
+
+fn cstr_to_string(string: *const c_char) -> Option<String> {
+    use std::ffi::CStr;
+    if string.is_null() {
+        None
+    } else {
+        let string = unsafe { CStr::from_ptr(string) };
+        let string = string.to_str().ok()?;
+        Some(String::from(string))
+    }
 }

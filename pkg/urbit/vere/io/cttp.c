@@ -6,6 +6,27 @@
 #include "io/lib.h"
 #include "vere/vere.h"
 
+//==============================================================================
+// Types
+//==============================================================================
+
+typedef struct {
+  c3_l     req_num_l;
+  c3_t     use_tls_t;
+  c3_c*    domain_c;      // free if not NULL
+  c3_w     ip_w;
+  c3_s     port_s;
+  c3_c*    method_c;      // free if not NULL
+  c3_c*    url_c;         // free if not NULL
+  StrPair* headers_u;     // free if not NULL
+  c3_w     headers_len_w;
+  c3_c*    body_c;        // free if not NULL
+} _request;
+
+//==============================================================================
+// Static functions
+//==============================================================================
+
 //! TODO
 static c3_w
 _mcut_url(c3_c* const buf_c, c3_w len_w, u3_noun pul)
@@ -70,7 +91,7 @@ _mcut_url(c3_c* const buf_c, c3_w len_w, u3_noun pul)
 //! @return NULL
 //! @return serialized request.
 static c3_t
-_parse_request(u3_noun data, HttpRequest* req_u)
+_parse_request(u3_noun data, _request* req_u)
 {
   c3_t suc_t = 0;
 
@@ -143,10 +164,10 @@ _parse_request(u3_noun data, HttpRequest* req_u)
 
   // Extract headers.
   {
-    c3_w        cap_w     = 4;
-    c3_w        len_w     = 0;
-    HttpHeader* headers_u = c3_malloc(cap_w * sizeof(*headers_u));
-    HttpHeader* header_u  = headers_u;
+    c3_w     cap_w     = 4; // starting allocation size
+    c3_w     len_w     = 0;
+    StrPair* headers_u = c3_malloc(cap_w * sizeof(*headers_u));
+    StrPair* header_u  = headers_u;
     while ( u3_nul != headers ) {
       if ( len_w == cap_w ) {
         cap_w    *= 2;
@@ -160,15 +181,20 @@ _parse_request(u3_noun data, HttpRequest* req_u)
       c3_w key_len_w = u3r_met(3, key);
       c3_w val_len_w = u3r_met(3, val);
 
-      *header_u = (HttpHeader){
-        .key_c = c3_calloc(key_len_w + 1),
-        .val_c = c3_calloc(val_len_w + 1),
+      *header_u = (StrPair){
+        .zero_c = c3_calloc(key_len_w + 1),
+        .one_c  = c3_calloc(val_len_w + 1),
       };
-      u3r_bytes(0, key_len_w, (c3_y*)header_u->key_c, key);
-      u3r_bytes(0, val_len_w, (c3_y*)header_u->val_c, val);
+      u3r_bytes(0, key_len_w, (c3_y*)header_u->zero_c, key);
+      u3r_bytes(0, val_len_w, (c3_y*)header_u->one_c, val);
 
       headers = u3t(headers);
+      header_u++;
       len_w++;
+    }
+    if ( 0 == len_w ) {
+      c3_free(headers_u);
+      headers_u = NULL;
     }
     req_u->headers_u     = headers_u;
     req_u->headers_len_w = len_w;
@@ -181,9 +207,9 @@ _parse_request(u3_noun data, HttpRequest* req_u)
       u3m_bail(c3__fail);
       goto end;
     }
-    c3_w len_w           = u3h(octet_stream);
-    req_u->body_u.body_c = c3_calloc(len_w + 1);
-    u3r_bytes(0, len_w, (c3_y*)req_u->body_u.body_c, u3t(octet_stream));
+    c3_w len_w    = u3h(octet_stream);
+    req_u->body_c = c3_calloc(len_w + 1);
+    u3r_bytes(0, len_w, (c3_y*)req_u->body_c, u3t(octet_stream));
   }
 
   suc_t = 1;
@@ -203,11 +229,11 @@ _receive_request(void)
 static void
 _io_talk(u3_auto* driver_u)
 {
-  HttpClient* client_u = (HttpClient*)driver_u;
-  u3_noun     wire     = u3nt(u3i_string("http-client"),
-                            u3dc("scot", c3__uv, client_u->instance_num_w),
-                            u3_nul);
-  u3_noun     card     = u3nc(c3__born, u3_nul);
+  Client* client_u = (Client*)driver_u;
+  u3_noun     wire = u3nt(u3i_string("http-client"),
+                          u3dc("scot", c3__uv, http_client_instance_num(client_u)),
+                          u3_nul);
+  u3_noun     card = u3nc(c3__born, u3_nul);
 
   u3_auto_plan(driver_u, u3_ovum_init(0, c3__i, wire, card));
 }
@@ -226,14 +252,14 @@ _io_kick(u3_auto* driver_u, u3_noun wire, u3_noun card)
     goto end;
   }
 
-  HttpClient* client_u = (HttpClient*)driver_u;
+  Client* client_u = (Client*)driver_u;
   if ( c3y == u3r_sing_c("request", tag) ) {
-    HttpRequest* req_u = c3_malloc(sizeof(*req_u));
-    if ( !_parse_request(data, req_u) ) {
+    _request req_u;
+    if ( !_parse_request(data, &req_u) ) {
       goto end;
     }
-    suc_o = http_schedule_request(client_u, req_u) ? c3y : c3n;
-    // TODO: ensure req_u doesn't leak.
+    //suc_o = http_schedule_request(client_u, req_u) ? c3y : c3n;
+    // TODO: ensure req_u's fields doesn't leak.
   }
   else if ( c3y == u3r_sing_c("cancel-request", tag) ) {
     // TODO: cancel request
@@ -254,12 +280,14 @@ end:
 static void
 _io_exit(u3_auto* driver_u)
 {
-  HttpClient* client_u = (HttpClient*)driver_u;
+  Client* client_u = (Client*)driver_u;
   http_client_deinit(client_u);
 }
 
-//! @n (1) Verify that the size of the u3_auto type matches the size reserved in
-//!        the Rust HttpClient struct.
+//==============================================================================
+// Functions
+//==============================================================================
+
 u3_auto*
 u3_cttp_io_init(u3_pier* pier_u)
 {
@@ -273,10 +301,9 @@ u3_cttp_io_init(u3_pier* pier_u)
     now_mug_w = u3r_mug(now);
     u3z(now);
   }
-  HttpClient* client_u = http_client_init(now_mug_w);
-  c3_assert(sizeof(client_u->driver_u) == 88); // (1)
+  Client* client_u = http_client_init(now_mug_w);
 
-  u3_auto* driver_u = &client_u->driver_u;
+  u3_auto* driver_u = (u3_auto*)client_u;
   *driver_u = (u3_auto){
     .nam_m = c3__cttp,
     .liv_o = c3y,
