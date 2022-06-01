@@ -1,8 +1,6 @@
 #[macro_use]
 extern crate lazy_static;
 
-use tokio::runtime;
-
 mod http;
 
 /// FFI-safe boolean type.
@@ -39,7 +37,7 @@ pub struct StrPair(*const u8, *const u8);
 lazy_static! {
     /// IMPORTANT: we can't use a multi-thread runtime here because of the callback model used by
     /// the HTTP client.
-    static ref RUNTIME: runtime::Runtime = runtime::Builder::new_current_thread()
+    static ref RUNTIME: runtime::Runtime = tokio::runtime::Builder::new_current_thread()
         .enable_all()
         .build()
         .unwrap();

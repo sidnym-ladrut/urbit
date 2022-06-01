@@ -135,5 +135,11 @@ async fn send_request(req: hyper::client::ResponseFuture, receiver: Receiver) {
     let headers_len = headers.len() as u32;
     let body_len = body.len() as u32;
 
-    receiver(status, headers.as_ptr(), headers_len, body.as_ptr(), body_len);
+    receiver(
+        status,
+        headers.as_ptr(),
+        headers_len,
+        body.as_ptr(),
+        body_len,
+    );
 }
