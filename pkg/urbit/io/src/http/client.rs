@@ -1,7 +1,4 @@
-use crate::{
-    cstr_to_str,
-    Bool, StrPair, RUNTIME,
-};
+use crate::{cstr_to_str, Bool, StrPair, RUNTIME};
 use hyper;
 use std::slice;
 
@@ -9,7 +6,7 @@ const U3_AUTO_SIZE: usize = 88;
 
 /// Callback to handle response to HTTP request.
 type Receiver = extern "C" fn(
-    status: u32,
+    status: u16,
     headers: *const StrPair,
     headers_len: u32,
     body: *const u8,
@@ -104,17 +101,39 @@ pub extern "C" fn http_client_deinit(client: *mut Client) {
     }
 }
 
-async fn send_request(req_fut: hyper::client::ResponseFuture, receiver: Receiver) {
-    let resp = req_fut.await;
+async fn send_request(req: hyper::client::ResponseFuture, receiver: Receiver) {
+    let resp = req.await;
     if let Err(err) = resp {
         panic!("response error");
     }
-    let resp = resp.unwrap();
+    let (parts, body) = resp.unwrap().into_parts();
 
-    // receiver needs:
-    // - status code as u32
-    // - headers as StrPair array
-    // - number of headers
-    // - body as byte array
-    // - length of body in bytes
+    // Wait for the entire response body to come in.
+    let body = hyper::body::to_bytes(body).await;
+    if let Err(err) = body {
+        panic!("body error");
+    }
+    let body = body.unwrap();
+
+    let status = parts.status.as_u16();
+    let headers: Vec<StrPair> = parts
+        .headers
+        .iter()
+        .map(|(key, val)| {
+            // TODO: character encoding bugs?
+            // key.as_str() always returns lowercase
+            let key = key.as_str().as_bytes().as_ptr();
+            let val = val.as_bytes().as_ptr();
+            StrPair(key, val)
+        })
+        .collect();
+
+    // Protect against overflow.
+    debug_assert!(headers.len() <= u32::MAX as usize);
+    debug_assert!(body.len() <= u32::MAX as usize);
+
+    let headers_len = headers.len() as u32;
+    let body_len = body.len() as u32;
+
+    receiver(status, headers.as_ptr(), headers_len, body.as_ptr(), body_len);
 }
