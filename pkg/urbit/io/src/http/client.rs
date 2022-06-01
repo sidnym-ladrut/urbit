@@ -53,7 +53,7 @@ pub extern "C" fn http_schedule_request(
     headers: *const StrPair,
     headers_len: u32,
     body: *const u8,
-    receiver: Receiver,
+    recv_request: Receiver,
 ) -> Bool {
     if client.is_null() {
         return Bool::False;
@@ -89,7 +89,7 @@ pub extern "C" fn http_schedule_request(
     };
 
     let req_fut = client.hyper.request(req);
-    RUNTIME.spawn(send_request(req_fut, receiver));
+    RUNTIME.spawn(send_request(req_fut, recv_request));
 
     Bool::False
 }
@@ -101,7 +101,7 @@ pub extern "C" fn http_client_deinit(client: *mut Client) {
     }
 }
 
-async fn send_request(req: hyper::client::ResponseFuture, receiver: Receiver) {
+async fn send_request(req: hyper::client::ResponseFuture, recv_request: Receiver) {
     let resp = req.await;
     if let Err(err) = resp {
         panic!("response error");
@@ -135,7 +135,7 @@ async fn send_request(req: hyper::client::ResponseFuture, receiver: Receiver) {
     let headers_len = headers.len() as u32;
     let body_len = body.len() as u32;
 
-    receiver(
+    recv_request(
         status,
         headers.as_ptr(),
         headers_len,

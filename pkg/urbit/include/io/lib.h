@@ -9,6 +9,14 @@ typedef struct {
   c3_c* one_c;
 } StrPair;
 
+// TODO
+typedef void (*http_receiver)(c3_s           status_s,
+                              StrPair* const headers_u,
+                              c3_w           headers_len_w,
+                              c3_y* const    body_y,
+                              c3_w           body_len_w);
+
+
 //! Opaque HTTP client type defined in io/src/http/client.rs. It's guaranteed
 //! that there is enough space for an instance of u3_auto at the very beginning
 //! of this type. No other guarantees about this type are made.
@@ -25,35 +33,37 @@ http_client_instance_num(const Client* const client_u);
 //! Schedule an HTTP request to be sent asynchronously, invoking the callback
 //! provided to http_client_init() when the response is received.
 //!
-//! @param[in] client_u       HTTP client handle. Must NOT be NULL.
-//! @param[in] req_num_l      Request number.
-//! @param[in] domain_c       Destination domain name. If NULL, `ip_w` should be
-//!                           used. If not NULL, `ip_w` is 0.
-//! @param[in] ip_w           Destination IP address. Zero if `domain_c` is not
-//!                           NULL.
-//! @param[in] port_s         Destination port number.
-//! @param[in] use_tls_t      Whether to use TLS.
-//! @param[in] url_c;         Destination URL.
-//! @param[in] method_c;      HTTP request method.
-//! @param[in] headers_u;     HTTP request headers.
-//! @param[in] headers_len_w  Number of HTTP request headers.
-//! @param[in] body_u;        HTTP request body.
+//! @param[in] client_u        HTTP client handle. Must NOT be NULL.
+//! @param[in] req_num_l       Request number.
+//! @param[in] domain_c        Destination domain name. If NULL, `ip_w` should be
+//!                            used. If not NULL, `ip_w` is 0.
+//! @param[in] ip_w            Destination IP address. Zero if `domain_c` is not
+//!                            NULL.
+//! @param[in] port_s          Destination port number.
+//! @param[in] use_tls_t       Whether to use TLS.
+//! @param[in] url_c           Destination URL.
+//! @param[in] method_c        HTTP request method.
+//! @param[in] headers_u       HTTP request headers.
+//! @param[in] headers_len_w   Number of HTTP request headers.
+//! @param[in] body_u          HTTP request body.
+//! @param[in] recv_request_f  Callback to invoke when the response to the
+//!                            request is received.
 //!
 //! @return 0  Request could not be scheduled.
 //! @return 1  Request was successfully scheduled.
 c3_t
-http_schedule_request(Client* const            client_u,
-                      const c3_l               req_num_l,
-                      const c3_c* const        domain_c,
-                      const c3_w               ip_w,
-                      const c3_s               port_s,
-                      const c3_t               use_tls_t,
-                      const c3_c* const        url_c,
-                      const c3_c* const        method_c,
-                      const StrPair* const     headers_u,
-                      const c3_w               headers_len_w,
-                      const c3_c* const        body_c,
-                      void                   (*receiver_f)(void));
+http_schedule_request(Client* const        client_u,
+                      const c3_l           req_num_l,
+                      const c3_c* const    domain_c,
+                      const c3_w           ip_w,
+                      const c3_s           port_s,
+                      const c3_t           use_tls_t,
+                      const c3_c* const    url_c,
+                      const c3_c* const    method_c,
+                      const StrPair* const headers_u,
+                      const c3_w           headers_len_w,
+                      const c3_c* const    body_c,
+                      http_receiver        recv_request_f);
 
 void
 http_client_deinit(Client* client_u);

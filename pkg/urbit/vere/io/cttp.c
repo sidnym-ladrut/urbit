@@ -219,7 +219,11 @@ end:
 }
 
 static void
-_receive_request(void)
+_recv_request(c3_s           status_s,
+              StrPair* const headers_u,
+              c3_w           headers_len_w,
+              c3_y* const    body_y,
+              c3_w           body_len_w)
 {
   // TODO: transform response into nouns, create wire and card, invoke
   // u3_auto_plan()
@@ -280,7 +284,7 @@ _io_kick(u3_auto* driver_u, u3_noun wire, u3_noun card)
                                   req_u.headers_u,
                                   req_u.headers_len_w,
                                   req_u.body_c,
-                                  _receive_request)
+                                  _recv_request)
             ? c3y
             : c3n;
     // TODO: ensure req_u's fields doesn't leak.
