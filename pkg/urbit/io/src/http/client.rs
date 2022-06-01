@@ -1,13 +1,20 @@
 use crate::{
     cstr_to_str,
-    http::{Receiver, Request},
     Bool, StrPair, RUNTIME,
 };
 use hyper;
-use std::{collections::HashMap, os::raw::c_char, slice};
-use tokio;
+use std::slice;
 
 const U3_AUTO_SIZE: usize = 88;
+
+/// Callback to handle response to HTTP request.
+type Receiver = extern "C" fn(
+    status: u32,
+    headers: *const StrPair,
+    headers_len: u32,
+    body: *const u8,
+    body_len: u32,
+);
 
 #[repr(C)]
 pub struct Client {
@@ -40,21 +47,21 @@ pub extern "C" fn http_client_instance_num(client: *const Client) -> u32 {
 pub extern "C" fn http_schedule_request(
     client: *mut Client,
     req_num: u32,
-    domain: *const c_char,
+    domain: *const u8,
     ip: u32,
     port: u16,
     use_tls: Bool,
-    url: *const c_char,
-    method: *const c_char,
+    url: *const u8,
+    method: *const u8,
     headers: *const StrPair,
     headers_len: u32,
-    body: *const c_char,
+    body: *const u8,
     receiver: Receiver,
 ) -> Bool {
     if client.is_null() {
         return Bool::False;
     }
-    let mut client = unsafe { Box::from_raw(client) };
+    let client = unsafe { Box::from_raw(client) };
 
     let req = {
         let use_tls: bool = use_tls.into();
@@ -80,11 +87,12 @@ pub extern "C" fn http_schedule_request(
             }
         }
 
-        let body = cstr_to_str(body).unwrap_or("");
+        let body = hyper::Body::from(cstr_to_str(body).unwrap_or(""));
         req.body(body).expect("request could not be compiled")
     };
 
-    // spawn client.hyper(req)
+    let req_fut = client.hyper.request(req);
+    RUNTIME.spawn(send_request(req_fut, receiver));
 
     Bool::False
 }
@@ -96,6 +104,17 @@ pub extern "C" fn http_client_deinit(client: *mut Client) {
     }
 }
 
-async fn send_request(client: Box<Client>, req_num: u32) {
-    Box::into_raw(client);
+async fn send_request(req_fut: hyper::client::ResponseFuture, receiver: Receiver) {
+    let resp = req_fut.await;
+    if let Err(err) = resp {
+        panic!("response error");
+    }
+    let resp = resp.unwrap();
+
+    // receiver needs:
+    // - status code as u32
+    // - headers as StrPair array
+    // - number of headers
+    // - body as byte array
+    // - length of body in bytes
 }

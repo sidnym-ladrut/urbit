@@ -1,7 +1,6 @@
 #[macro_use]
 extern crate lazy_static;
 
-use std::os::raw::c_char;
 use tokio::runtime;
 
 mod http;
@@ -35,11 +34,7 @@ impl From<Bool> for bool {
 
 /// FFI-safe tuple type.
 #[repr(C)]
-pub struct StrPair(*const c_char, *const c_char);
-
-// Public
-//==================================================================================================
-// Private
+pub struct StrPair(*const u8, *const u8);
 
 lazy_static! {
     /// IMPORTANT: we can't use a multi-thread runtime here because of the callback model used by
@@ -50,11 +45,12 @@ lazy_static! {
         .unwrap();
 }
 
-fn cstr_to_str(string: *const c_char) -> Option<&'static str> {
+/// `string` must be NULL-terminated.
+fn cstr_to_str(string: *const u8) -> Option<&'static str> {
     use std::ffi::CStr;
     if string.is_null() {
         None
     } else {
-        unsafe { CStr::from_ptr(string).to_str().ok() }
+        unsafe { CStr::from_ptr(string as *const i8).to_str().ok() }
     }
 }
