@@ -2046,7 +2046,7 @@
   $~  [%n ~]
   $@  @tas
   $%  [%ub @ub]  [%uc @uc]  [%ud @ud]  [%ui @ui]
-      [%ux @ux]  [%uv @uv]  [%uw @uw]
+      [%ux @ux]  [%uv @uv]  [%uw @uw]  [%uo @uo]
       [%sb @sb]  [%sc @sc]  [%sd @sd]  [%si @si]
       [%sx @sx]  [%sv @sv]  [%sw @sw]
       [%da @da]  [%dr @dr]
@@ -5284,15 +5284,19 @@
   ++  piv  (bass 32 (stun [5 5] siv))
   ++  piw  (bass 64 (stun [5 5] siw))
   ++  qeb  (bass 2 ;~(plug seb (stun [0 3] sib)))
+  ++  qoc  (bass 8 ;~(plug seo (stun [0 2] cit)))
   ++  qex  (bass 16 ;~(plug sex (stun [0 3] hit)))
   ++  qib  (bass 2 (stun [4 4] sib))
+  ++  qic  (bass 8 (stun [3 3] sio))
   ++  qix  (bass 16 (stun [4 4] six))
   ++  seb  (cold 1 (just '1'))
+  ++  seo  (cook |=(a=@ (sub a '0')) (shim '1' '7'))
   ++  sed  (cook |=(a=@ (sub a '0')) (shim '1' '9'))
   ++  sev  ;~(pose sed sov)
   ++  sew  ;~(pose sed sow)
   ++  sex  ;~(pose sed sox)
   ++  sib  (cook |=(a=@ (sub a '0')) (shim '0' '1'))
+  ++  sio  (cook |=(a=@ (sub a '0')) (shim '0' '7'))
   ++  sid  (cook |=(a=@ (sub a '0')) (shim '0' '9'))
   ++  siv  ;~(pose sid sov)
   ++  siw  ;~(pose sid sow)
@@ -5358,6 +5362,7 @@
              (star ;~(pfix dof hif:ab))
            ==
   ++  fim  (sear den:fa (bass 58 (plus fem:ab)))
+  ++  oct  (ape (bass 0x1000 ;~(plug qoc:ab (star ;~(pfix dog qic:ab)))))
   ++  hex  (ape (bass 0x1.0000 ;~(plug qex:ab (star ;~(pfix dog qix:ab)))))
   ++  lip  =+  tod=(ape ted:ab)
            (bass 256 ;~(plug tod (stun [3 3] ;~(pfix dog tod))))
@@ -5502,6 +5507,7 @@
           ?+  hay  [~ ((ox-co [10 3] |=(a=@ ~(d ne a))) q.p.lot)]
             %b  [['0' 'b' ~] ((ox-co [2 4] |=(a=@ ~(d ne a))) q.p.lot)]
             %i  [['0' 'i' ~] ((d-co 1) q.p.lot)]
+            %o  [['0' 'o' ~] ((ox-co [8 3] |=(a=@ ~(x ne a))) q.p.lot)]
             %x  [['0' 'x' ~] ((ox-co [16 4] |=(a=@ ~(x ne a))) q.p.lot)]
             %v  [['0' 'v' ~] ((ox-co [32 5] |=(a=@ ~(x ne a))) q.p.lot)]
             %w  [['0' 'w' ~] ((ox-co [64 5] |=(a=@ ~(w ne a))) q.p.lot)]
@@ -5664,6 +5670,7 @@
           (stag %uc ;~(pfix (just 'c') fim:ag))
           (stag %ui ;~(pfix (just 'i') dim:ag))
           (stag %ux ;~(pfix (just 'x') hex:ag))
+          (stag %uo ;~(pfix (just 'o') oct:ag))
           (stag %uv ;~(pfix (just 'v') viz:ag))
           (stag %uw ;~(pfix (just 'w') wiz:ag))
         ==
@@ -5871,6 +5878,9 @@
   ::
       %ux
     (rush txt ;~(pfix (jest '0x') hex:ag))
+  ::
+      %uo
+    (rush txt ;~(pfix (jest '0o') oct:ag))
   ::
       %uv
     (rush txt ;~(pfix (jest '0v') viz:ag))
