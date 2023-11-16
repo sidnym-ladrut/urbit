@@ -1743,6 +1743,7 @@
     %j  %jael
     %k  %khan
     %l  %lick
+    %f  %faux
   ==
 --  =>
 ::

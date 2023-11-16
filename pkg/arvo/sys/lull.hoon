@@ -3229,6 +3229,21 @@
   ::
   +$  name  path
   --  ::lick
+::                                                      ::::
+::::                    ++faux                            ::  (1k) Test
+  ::                                                    ::::
+++  faux  ^?
+  |%
+  +$  gift                                              ::  out result <-$
+    $%  [%hail ~]                                       ::  just say hi
+    ==
+  +$  task                                              ::  in request ->$
+    $~  [%vega ~]                                       ::
+    $%  $>(%born vane-task)                             ::  new unix process
+        $>(%vega vane-task)                             ::  report upgrade
+        [%hail ~]                                       ::  just say hi
+    ==
+  --  ::faux
 ::
 ++  rand                                                ::  computation
   |%
@@ -3432,6 +3447,7 @@
       gift:jael
       gift:khan
       gift:lick
+      gift:faux
   ==
 +$  task-arvo                                           ::  in request ->$
   $%  task:ames
@@ -3444,6 +3460,7 @@
       task:jael
       task:khan
       task:lick
+      task:faux
   ==
 +$  note-arvo                                           ::  out request $->
   $~  [%b %wake ~]
@@ -3457,6 +3474,7 @@
       [%j task:jael]
       [%k task:khan]
       [%l task:lick]
+      [%f task:faux]
       [%$ %whiz ~]
       [@tas %meta vase]
   ==
@@ -3480,6 +3498,7 @@
       [%jael gift:jael]
       [%khan gift:khan]
       [%lick gift:lick]
+      [%faux gift:faux]
   ==
 ::  $unix-task: input from unix
 ::
