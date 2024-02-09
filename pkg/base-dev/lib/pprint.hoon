@@ -1,30 +1,35 @@
 |%
 ++  ur
   =>  |%
-      +$  cape  [p=(map @ud wine) q=wine]
-      +$  wine
-        $@  $?  %noun
-                %path
-                %type
-                %void
-                %wall
-                %wool
-                %yarn
-            ==
-        $%  [%mato p=term]
-            [%gate p=hoon q=type r=wine]
-            [%core p=(list @ta) q=wine]
-            [%face p=term q=wine]
-            [%list p=term q=wine]
-            [%pear p=term q=@]
-            [%bcwt p=(list wine)]
-            [%plot p=(list wine)]
-            [%stop p=@ud]
-            [%tree p=term q=wine]
-            [%unit p=term q=wine]
-        ==
+      +$  cape  [p=(map @ud wine) q=wine]               ::
+      +$  wine                                          ::
+                $@  $?  %noun                           ::
+                        %path                           ::
+                        %type                           ::
+                        %void                           ::
+                        %wall                           ::
+                        %wool                           ::
+                        %yarn                           ::
+                    ==                                  ::
+                $%  [%mato p=term]                      ::
+                    [%core p=(list @ta) q=wine]         ::
+                    [%face p=term q=wine]               ::
+                    [%list p=term q=wine]               ::
+                    [%pear p=term q=@]                  ::
+                    [%bcwt p=(list wine)]               ::
+                    [%plot p=(list wine)]               ::
+                    [%stop p=@ud]                       ::
+                    [%tree p=term q=wine]               ::
+                    [%unit p=term q=wine]               ::
+                    [%name p=stud q=wine]               ::
+                ==                                      ::
+      +$  ppin  $-([(each type vase) $-((each type vase) tank)] tank)
       --
-  |_  sut=type
+  =+  :*  veb=*?(%base %most %lest)    ::  default verbosity
+          pin=*(map term ppin)         ::  print overrides
+      ==
+  =+  sut=`type`%noun
+  |%
   ++  dash
     |=  [mil=tape lim=char lam=tape]
     ^-  tape
@@ -45,7 +50,6 @@
   ++  dial
     |=  ham=cape
     =+  gid=*(set @ud)
-    =|  top-level=?  ::  don't need circumfix punctuation
     =<  `tank`-:$
     |%
     ++  many
@@ -67,52 +71,14 @@
           %wall      :_(gid [%leaf '*' '\'' '\'' ~])
           %yarn      :_(gid [%leaf '"' '"' ~])
           [%mato *]  :_(gid [%leaf '@' (trip p.q.ham)])
-          [%gate *]
-        =^  sam  gid
-          ?.  ?=([%plot * * *] r.q.ham)
-            ?:  ?=(%plot -.r.q.ham)
-              %-  (slog -:$(q.ham r.q.ham) ~)
-              `gid
-            `gid
-          [`u=- +]:$(q.ham i.p.r.q.ham, top-level |)
-        :_  gid
-        :+  %rose
-          :-  ?>  ?=(%core -.q.q.ham)
-              ?:  ?=(%dry q.p.q.q.q.ham)
-                " -> "
-              " ~> "
-          ?:  top-level
-            ["" ""]
-          ["(" ")"]
-        :+  ?~(sam leaf+"_" u.sam)
-          =/  res  (mule |.((~(play ut q.q.ham) p.q.ham)))
-          ?-  -.res
-            %&  duck(sut p.res)
-            %|  leaf+"###"
-          ==
-        ~
-      ::
           [%core *]
-        =^  sam  gid
-          ?.  ?=([%plot * * ~] q.q.ham)
-            `gid
-          [`u=- +]:$(q.ham i.p.q.q.ham)
+        =^  cox  gid  $(q.ham q.q.ham)
         :_  gid
-        ?~  sam
-          :+  %rose
-            [[' ' ~] ['<' ~] ['>' ~]]
-          |-  ^-  (list tank)
-          ?~  p.q.ham  ~
-          [[%leaf (rip 3 i.p.q.ham)] $(p.q.ham t.p.q.ham)]
         :+  %rose
-          [" -> " "" ""]
-        :+  u.sam
-          :+  %rose
-            [[' ' ~] ['<' ~] ['>' ~]]
-          |-  ^-  (list tank)
-          ?~  p.q.ham  ~
-          [[%leaf (rip 3 i.p.q.ham)] $(p.q.ham t.p.q.ham)]
-        ~
+          [[' ' ~] ['<' ~] ['>' ~]]
+        |-  ^-  (list tank)
+        ?~  p.q.ham  [cox ~]
+        [[%leaf (rip 3 i.p.q.ham)] $(p.q.ham t.p.q.ham)]
       ::
           [%face *]
         =^  cox  gid  $(q.ham q.q.ham)
@@ -131,7 +97,7 @@
         :_(gid [%rose [[' ' ~] ['[' ~] [']' ~]] coz])
       ::
           [%pear *]
-        :_(gid [%leaf '$' ~(rend co [%$ p.q.ham q.q.ham])])
+        :_(gid [%leaf '%' ~(rend co [%$ p.q.ham q.q.ham])])
       ::
           [%stop *]
         =+  num=~(rend co [%$ %ud p.q.ham])
@@ -151,6 +117,11 @@
           [%unit *]
         =^  cox  gid  $(q.ham q.q.ham)
         :_(gid [%rose [" " (weld (trip p.q.ham) "(") ")"] cox ~])
+      ::
+          [%name *]
+        :_  gid
+        ?@  p.q.ham  (cat 3 '#' mark.p.q.ham)
+        (rap 3 '#' auth.p.q.ham '+' (spat type.p.q.ham) ~)
       ==
     --
   ::
@@ -226,9 +197,6 @@
         %t    (dash (rip 3 lum) '\'' ~)
         %tas  ['%' ?.(=(0 lum) (rip 3 lum) ['$' ~])]
       ==
-    ::
-        [%gate *]
-      !!
     ::
         [%core *]
       ::  XX  needs rethinking for core metal
@@ -341,6 +309,9 @@
       ?~  wal
         ~
       [~ %rose [[' ' ~] ['[' ~] [']' ~]] [%leaf '~' ~] u.wal ~]
+    ::
+        [%name *]
+      $(q.ham q.q.ham)
     ==
   ::
   ++  doge
@@ -421,11 +392,6 @@
       ?:(?=([%plot *] q.yon) [q.hin p.q.yon] [q.hin q.yon ~])
     ::
         [%core *]
-      ?:  ?=([[%$ * [[%$ @ *] ~ ~]] ~ ~] q.r.q.sut)
-        =/  dad  $(sut p.sut)
-        :-  p.dad
-        ~!  q.r.q.sut
-        [%gate q.n.q.q.n.q.r.q.sut sut(r.p.q %gold) q.dad]
       =+  yad=$(sut p.sut)
       :-  p.yad
       =+  ^=  doy  ^-  [p=(list @ta) q=wine]
@@ -450,7 +416,9 @@
       ==
     ::
         [%hint *]
-      $(sut q.sut)
+      =+  yad=$(sut q.sut)
+      ?.  ?=(%know -.q.p.sut)  yad
+      [p.yad [%name p.q.p.sut q.yad]]
     ::
         [%face *]
       =+  yad=$(sut q.sut)
@@ -481,15 +449,24 @@
     ==
   ::
   ++  duck  (dial dole)
+  ++  doxx
+    |=  typ=type
+    ^-  type
+    typ
+    ::  ::  NOTE: look to +doge for implementation specifics (i.e. type
+    ::  ::  identifying heuristics)
+    ::  =+  ham=dole
+    ::  =+  tag=|=(mar=term `type`[%hint p=[typ %know mar] q=typ])
+    ::  ::  if we see a type we recognize, enclose it in the following:
+    ::  ::  [%hint [typ %know %mark-name-here] typ]
+    ::  ::  TODO: how do we heuristically recognize types?
+    ::  ?-    typ
+    ::      ?(%noun %void)
+    ::    typ
+    ::  ::
+    ::      [%atom *]
+    ::    (tag ?~(q.sut %mato %pear))
+    ::  ::
+    ::  ==
   --
-::
-++  vase2tape                 ::  TODO: remove helper
-  |=  vax=vase
-  ^-  tape
-  ~(ram re (~(deal ur p.vax) q.vax))
-::
-++  type2tape                 ::  TODO: remove helper
-  |=  typ=type
-  ^-  tape
-  ~(ram re ~(duck ur typ))
 --
