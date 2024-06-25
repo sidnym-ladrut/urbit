@@ -353,7 +353,7 @@
   ::  a `++tree` can be empty, or contain a node of a type and
   ::  left/right sub `++tree` of the same type. pretty-printed with `{}`.
   ::
-  $@(~ [n=node l=(tree node) r=(tree node)])
+  $+(tree $@(~ [n=node l=(tree node) r=(tree node)]))
 ::
 ++  trel
   |$  [first second third]
@@ -370,7 +370,7 @@
   ::  mold generator: either `~` or `[~ u=a]` where `a` is the
   ::  type that was passed in.
   ::
-  $@(~ [~ u=item])
+  $+(unit $@(~ [~ u=item]))
 --  =>
 ::
 ~%  %two  +  ~
@@ -1910,17 +1910,17 @@
 ::
 ++  map
   |$  [key value]                                       ::  table
-  $|  (tree (pair key value))
+  $|  $+(map (tree (pair key value)))
   |=(a=(tree (pair)) ?:(=(~ a) & ~(apt by a)))
 ::
 ++  qeu
   |$  [item]                                            ::  queue
-  $|  (tree item)
+  $|  $+(qeu (tree item))
   |=(a=(tree) ?:(=(~ a) & ~(apt to a)))
 ::
 ++  set
   |$  [item]                                            ::  set
-  $|  (tree item)
+  $|  $+(set (tree item))
   |=(a=(tree) ?:(=(~ a) & ~(apt in a)))
 ::
 ::    2p: serialization
@@ -10636,7 +10636,7 @@
           [%hint *]
         ::  work through hint
         ::
-        (hint p.sut dext(sut q.sut))
+        dext(sut q.sut)
       ::
           [%fork *]
         ::  reconstruct each case in fork

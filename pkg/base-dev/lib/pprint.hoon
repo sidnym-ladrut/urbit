@@ -1,472 +1,362 @@
 |%
 ++  ur
   =>  |%
-      +$  cape  [p=(map @ud wine) q=wine]               ::
-      +$  wine                                          ::
-                $@  $?  %noun                           ::
-                        %path                           ::
-                        %type                           ::
-                        %void                           ::
-                        %wall                           ::
-                        %wool                           ::
-                        %yarn                           ::
-                    ==                                  ::
-                $%  [%mato p=term]                      ::
-                    [%core p=(list @ta) q=wine]         ::
-                    [%face p=term q=wine]               ::
-                    [%list p=term q=wine]               ::
-                    [%pear p=term q=@]                  ::
-                    [%bcwt p=(list wine)]               ::
-                    [%plot p=(list wine)]               ::
-                    [%stop p=@ud]                       ::
-                    [%tree p=term q=wine]               ::
-                    [%unit p=term q=wine]               ::
-                    [%name p=stud q=wine]               ::
-                ==                                      ::
-      +$  ppin  $-([(each type vase) $-((each type vase) tank)] tank)
+      +$  tase  (each type vase)                        ::  type/vase
+      +$  seen  [p=(set tase) q=(map type @)]           ::  track holds
+      +$  base  $-([tase seen] (unit [seen tank]))      ::  base printer
+      +$  ppin  $-([tase seen base] (unit [seen tank])) ::  custom printer
       --
-  =+  :*  veb=*?(%base %most %lest)    ::  default verbosity
-          pin=*(map term ppin)         ::  print overrides
-      ==
-  =+  sut=`type`%noun
-  |%
-  ++  dash
-    |=  [mil=tape lim=char lam=tape]
-    ^-  tape
-    =/  esc  (~(gas in *(set @tD)) lam)
-    :-  lim
-    |-  ^-  tape
-    ?~  mil  [lim ~]
-    ?:  ?|  =(lim i.mil)
-            =('\\' i.mil)
-            (~(has in esc) i.mil)
-        ==
-      ['\\' i.mil $(mil t.mil)]
-    ?:  (lte ' ' i.mil)
-      [i.mil $(mil t.mil)]
-    ['\\' ~(x ne (rsh 2 i.mil)) ~(x ne (end 2 i.mil)) $(mil t.mil)]
   ::
-  ++  deal  |=(lum=* (dish dole lum))
-  ++  dial
-    |=  ham=cape
-    =+  gid=*(set @ud)
-    =<  `tank`-:$
-    |%
-    ++  many
-      |=  haz=(list wine)
-      ^-  [(list tank) (set @ud)]
-      ?~  haz  [~ gid]
-      =^  mor  gid  $(haz t.haz)
-      =^  dis  gid  ^$(q.ham i.haz)
-      [[dis mor] gid]
-    ::
-    ++  $
-      ^-  [tank (set @ud)]
-      ?-    q.ham
-          %noun      :_(gid [%leaf '*' ~])
-          %path      :_(gid [%leaf '/' ~])
-          %type      :_(gid [%leaf '#' 't' ~])
-          %void      :_(gid [%leaf '#' '!' ~])
-          %wool      :_(gid [%leaf '*' '"' '"' ~])
-          %wall      :_(gid [%leaf '*' '\'' '\'' ~])
-          %yarn      :_(gid [%leaf '"' '"' ~])
-          [%mato *]  :_(gid [%leaf '@' (trip p.q.ham)])
-          [%core *]
-        =^  cox  gid  $(q.ham q.q.ham)
-        :_  gid
-        :+  %rose
-          [[' ' ~] ['<' ~] ['>' ~]]
-        |-  ^-  (list tank)
-        ?~  p.q.ham  [cox ~]
-        [[%leaf (rip 3 i.p.q.ham)] $(p.q.ham t.p.q.ham)]
-      ::
-          [%face *]
-        =^  cox  gid  $(q.ham q.q.ham)
-        :_(gid [%palm [['=' ~] ~ ~ ~] [%leaf (trip p.q.ham)] cox ~])
-      ::
-          [%list *]
-        =^  cox  gid  $(q.ham q.q.ham)
-        :_(gid [%rose [" " (weld (trip p.q.ham) "(") ")"] cox ~])
-      ::
-          [%bcwt *]
-        =^  coz  gid  (many p.q.ham)
-        :_(gid [%rose [[' ' ~] ['?' '(' ~] [')' ~]] coz])
-      ::
-          [%plot *]
-        =^  coz  gid  (many p.q.ham)
-        :_(gid [%rose [[' ' ~] ['[' ~] [']' ~]] coz])
-      ::
-          [%pear *]
-        :_(gid [%leaf '%' ~(rend co [%$ p.q.ham q.q.ham])])
-      ::
-          [%stop *]
-        =+  num=~(rend co [%$ %ud p.q.ham])
-        ?:  (~(has in gid) p.q.ham)
-          :_(gid [%leaf '#' num])
-        =^  cox  gid
-            %=  $
-              gid    (~(put in gid) p.q.ham)
-              q.ham  (~(got by p.ham) p.q.ham)
-            ==
-        :_(gid [%palm [['.' ~] ~ ~ ~] [%leaf ['^' '#' num]] cox ~])
-      ::
-          [%tree *]
-        =^  cox  gid  $(q.ham q.q.ham)
-        :_(gid [%rose [" " (weld (trip p.q.ham) "(") ")"] cox ~])
-      ::
-          [%unit *]
-        =^  cox  gid  $(q.ham q.q.ham)
-        :_(gid [%rose [" " (weld (trip p.q.ham) "(") ")"] cox ~])
-      ::
-          [%name *]
-        :_  gid
-        ?@  p.q.ham  (cat 3 '#' mark.p.q.ham)
-        (rap 3 '#' auth.p.q.ham '+' (spat type.p.q.ham) ~)
+  |_  $:  veb=?(%base %most %lest)                      ::  default verbosity
+          pin=(map term ppin)                           ::  print overrides
       ==
-    --
   ::
-  ++  dish  !:
-    |=  [ham=cape lum=*]  ^-  tank
-    ~|  [%dish-h ?@(q.ham q.ham -.q.ham)]
-    ~|  [%lump lum]
-    ~|  [%ham ham]
-    %-  need
-    =|  gil=(set [@ud *])
-    |-  ^-  (unit tank)
-    ?-    q.ham
-        %noun
-      %=    $
-          q.ham
-        ?:  ?=(@ lum)
-          [%mato %$]
-        :-  %plot
-        |-  ^-  (list wine)
-        [%noun ?:(?=(@ +.lum) [[%mato %$] ~] $(lum +.lum))]
-      ==
-    ::
-        %path
-      :-  ~
-      :+  %rose
-        [['/' ~] ['/' ~] ~]
-      |-  ^-  (list tank)
-      ?~  lum  ~
-      ?@  lum  !!
-      ?>  ?=(@ -.lum)
-      [[%leaf (rip 3 -.lum)] $(lum +.lum)]
-    ::
-        %type
-      =+  tyr=|.((dial dole))
-      =+  vol=tyr(sut lum)
-      =+  cis=;;(tank .*(vol [%9 2 %0 1]))
-      :^  ~   %palm
-        [~ ~ ~ ~]
-      [[%leaf '#' 't' '/' ~] cis ~]
-    ::
-        %wall
-      :-  ~
-      :+  %rose
-        [[' ' ~] ['<' '|' ~] ['|' '>' ~]]
-      |-  ^-  (list tank)
-      ?~  lum  ~
-      ?@  lum  !!
-      [[%leaf (trip ;;(@ -.lum))] $(lum +.lum)]
-    ::
-        %wool
-      :-  ~
-      :+  %rose
-        [[' ' ~] ['<' '<' ~] ['>' '>' ~]]
-      |-  ^-  (list tank)
-      ?~  lum  ~
-      ?@  lum  !!
-      [(need ^$(q.ham %yarn, lum -.lum)) $(lum +.lum)]
-    ::
-        %yarn
-      [~ %leaf (dash (tape lum) '"' "\{")]
-    ::
-        %void
-      ~
-    ::
-        [%mato *]
-      ?.  ?=(@ lum)
-        ~
-      :+  ~
-        %leaf
-      ?+    (rash p.q.ham ;~(sfix (cook crip (star low)) (star hig)))
-          ~(rend co [%$ p.q.ham lum])
-        %$    ~(rend co [%$ %ud lum])
-        %t    (dash (rip 3 lum) '\'' ~)
-        %tas  ['%' ?.(=(0 lum) (rip 3 lum) ['$' ~])]
-      ==
-    ::
-        [%core *]
-      ::  XX  needs rethinking for core metal
-      ::  ?.  ?=(^ lum)  ~
-      ::  =>  .(lum `*`lum)
-      ::  =-  ?~(tok ~ [~ %rose [[' ' ~] ['<' ~] ['>' ~]] u.tok])
-      ::  ^=  tok
-      ::  |-  ^-  (unit (list tank))
-      ::  ?~  p.q.ham
-      ::    =+  den=^$(q.ham q.q.ham)
-      ::    ?~(den ~ [~ u.den ~])
-      ::  =+  mur=$(p.q.ham t.p.q.ham, lum +.lum)
-      ::  ?~(mur ~ [~ [[%leaf (rip 3 i.p.q.ham)] u.mur]])
-      [~ (dial ham)]
-    ::
-        [%face *]
-      =+  wal=$(q.ham q.q.ham)
-      ?~  wal
-        ~
-      [~ %palm [['=' ~] ~ ~ ~] [%leaf (trip p.q.ham)] u.wal ~]
-    ::
-        [%list *]
-      ?:  =(~ lum)
-        [~ %leaf '~' ~]
-      =-  ?~  tok
-            ~
-          [~ %rose [[' ' ~] ['~' '[' ~] [']' ~]] u.tok]
-      ^=  tok
-      |-  ^-  (unit (list tank))
-      ?:  ?=(@ lum)
-        ?.(=(~ lum) ~ [~ ~])
-      =+  [for=^$(q.ham q.q.ham, lum -.lum) aft=$(lum +.lum)]
-      ?.  &(?=(^ for) ?=(^ aft))
-        ~
-      [~ u.for u.aft]
-    ::
-        [%bcwt *]
-      |-  ^-  (unit tank)
-      ?~  p.q.ham
-        ~
-      =+  wal=^$(q.ham i.p.q.ham)
-      ?~  wal
-        $(p.q.ham t.p.q.ham)
-      wal
-    ::
-        [%plot *]
-      =-  ?~  tok
-            ~
-          [~ %rose [[' ' ~] ['[' ~] [']' ~]] u.tok]
-      ^=  tok
-      |-  ^-  (unit (list tank))
-      ?~  p.q.ham
-        ~
-      ?:  ?=([* ~] p.q.ham)
-        =+  wal=^$(q.ham i.p.q.ham)
-        ?~(wal ~ [~ [u.wal ~]])
-      ?@  lum
-        ~
-      =+  gim=^$(q.ham i.p.q.ham, lum -.lum)
-      ?~  gim
-        ~
-      =+  myd=$(p.q.ham t.p.q.ham, lum +.lum)
-      ?~  myd
-        ~
-      [~ u.gim u.myd]
-    ::
-        [%pear *]
-      ?.  =(lum q.q.ham)
-        ~
-      =.  p.q.ham
-        (rash p.q.ham ;~(sfix (cook crip (star low)) (star hig)))
-      =+  fox=$(q.ham [%mato p.q.ham])
-      ?>  ?=([~ %leaf ^] fox)
-      ?:  ?=(?(%n %tas) p.q.ham)
-        fox
-      [~ %leaf '%' p.u.fox]
-    ::
-        [%stop *]
-      ?:  (~(has in gil) [p.q.ham lum])  ~
-      =+  kep=(~(get by p.ham) p.q.ham)
-      ?~  kep
-        ~|([%stop-loss p.q.ham] !!)
-      $(gil (~(put in gil) [p.q.ham lum]), q.ham u.kep)
-    ::
-        [%tree *]
-      =-  ?~  tok
-            ~
-          [~ %rose [[' ' ~] ['{' ~] ['}' ~]] u.tok]
-      ^=  tok
-      =+  tuk=*(list tank)
-      |-  ^-  (unit (list tank))
-      ?:  =(~ lum)
-        [~ tuk]
-      ?.  ?=([n=* l=* r=*] lum)
-        ~
-      =+  rol=$(lum r.lum)
-      ?~  rol
-        ~
-      =+  tim=^$(q.ham q.q.ham, lum n.lum)
-      ?~  tim
-        ~
-      $(lum l.lum, tuk [u.tim u.rol])
-    ::
-        [%unit *]
-      ?@  lum
-        ?.(=(~ lum) ~ [~ %leaf '~' ~])
-      ?.  =(~ -.lum)
-        ~
-      =+  wal=$(q.ham q.q.ham, lum +.lum)
-      ?~  wal
-        ~
-      [~ %rose [[' ' ~] ['[' ~] [']' ~]] [%leaf '~' ~] u.wal ~]
-    ::
-        [%name *]
-      $(q.ham q.q.ham)
-    ==
+  ++  draw  |=(inp=tase +:(need (disc inp [~ ~])))      ::  print type/vase
   ::
-  ++  doge
-    |=  ham=cape
-    =-  ?+  woz  woz
-          [%list * [%mato %'ta']]  %path
-          [%list * [%mato %'t']]   %wall
-          [%list * [%mato %'tD']]  %yarn
-          [%list * %yarn]          %wool
-        ==
-    ^=  woz
-    ^-  wine
-    ?.  ?=([%stop *] q.ham)
-      ?:  ?&  ?=  [%bcwt [%pear %n %0] [%plot [%pear %n %0] [%face *] ~] ~]
-                q.ham
-              =(1 (met 3 p.i.t.p.i.t.p.q.ham))
+  ++  disc                                              ::  base printer
+    |=  [inp=tase sen=seen]
+    ^-  (unit [seen tank])
+    =+  typ=?-(-.inp %& p.inp, %| p.p.inp)
+    |^  ?:  (~(meet ut typ) -:!>(*type))
+          (dial %typo)            ::  #t, #t/XX
+        (dial ?@(typ typ -.typ))  ::  %atom/%cell/%face/etc.
+    ::
+    ++  dial                                            ::  call printer
+      |=  mar=term
+      ?~  custom=(~(get by pin) mar)
+        (defs mar)  ::  TODO: maybe get rid of +defs and do it here
+      (u.custom inp sen disc)
+    ::
+    ++  defs                                            ::  default printers
+      |=  mar=term
+      :: ~&  mar
+      ^-  (unit [seen tank])
+      |^  ?+  mar  ~
+            %typo  typo
+            %noun  noun
+            %void  void
+            %atom  atom
+            %cell  cell
+            %core  core
+            %face  face
+            %fork  fork
+            %hint  hint
+            %hold  hold
+            %unit  unit
+            %list  list
+            %tape  tape
+            %path  path
+            %wall  wall
+            %wain  wain
+            %tree  tree
+            %map   map
+            %set   set
+            %qeu   qeu
           ==
-        [%unit =<([p q] i.t.p.i.t.p.q.ham)]
-      q.ham
-    =+  may=(~(get by p.ham) p.q.ham)
-    ?~  may
-      q.ham
-    =+  nul=[%pear %n 0]
-    ?.  ?&  ?=([%bcwt *] u.may)
-            ?=([* * ~] p.u.may)
-            |(=(nul i.p.u.may) =(nul i.t.p.u.may))
+      ::
+      ++  typo
+        ?-    -.inp
+          %&  `[sen [%leaf "#t"]]
+          %|  =+  tyr=|.((disc inp sen))
+              =+  vol=tyr(inp [%& q.p.inp])
+              =+  cis=;;(tank +>:.*(vol [%9 2 %0 1]))  ::  TODO: we can cast the tank but not the seen
+              `[sen [%palm [~ ~ ~ ~] [[%leaf "#t/"] cis ~]]]
         ==
-      q.ham
-    =+  din=?:(=(nul i.p.u.may) i.t.p.u.may i.p.u.may)
-    ?:  ?&  ?=([%plot [%face *] [%face * %stop *] ~] din)
-            =(p.q.ham p.q.i.t.p.din)
-            =(1 (met 3 p.i.p.din))
-            =(1 (met 3 p.i.t.p.din))
+      ::
+      ++  noun
+        ?-   -.inp
+          %&  `[sen [%leaf "*"]]
+          %|  =-  (disc inp(p.p -) sen)
+              ?@  q.p.inp  [%atom %$ ~]
+              [%cell %noun %noun]  ::  !>(*)  causes PP to loop forever here
         ==
-      :+  %list
-        (cat 3 p.i.p.din p.i.t.p.din)
-      q.i.p.din
-    ?:  ?&  ?=  $:  %plot
-                    [%face *]
-                    [%face * %stop *]
-                    [[%face * %stop *] ~]
+      ::
+      ++  void  ?:(-.inp ~ `[sen [%leaf "#!"]])
+      ::
+      ++  atom
+        ?>  ?=([%atom *] typ)
+        ?-  -.inp
+          %&  ?~  q.typ  
+                `[sen [%leaf '@' (trip p.typ)]]
+              `[sen [%leaf '%' ~(rend co [%$ p.typ u.q.typ])]]
+          %|  ?~  q.typ
+                ?.  ?=(@ q.p.inp)  ~
+                :-  ~
+                :-  sen
+                :-  %leaf
+                ?+    (rash p.typ ;~(sfix (cook crip (star low)) (star hig)))
+                    ~(rend co [%$ p.typ q.p.inp])
+                  %$    ~(rend co [%$ %ud q.p.inp])
+                  %t    (dash (rip 3 q.p.inp) '\'' ~)
+                  %tas  ['%' ?.(=(0 q.p.inp) (rip 3 q.p.inp) ['$' ~])]
                 ==
-                din
-            =(p.q.ham p.q.i.t.p.din)
-            =(p.q.ham p.q.i.t.t.p.din)
-            =(1 (met 3 p.i.p.din))
-            =(1 (met 3 p.i.t.p.din))
-            =(1 (met 3 p.i.t.t.p.din))
+              ?.  =(q.p.inp u.q.typ)  ~ 
+              =.  p.typ  (rash p.typ ;~(sfix (cook crip (star low)) (star hig)))
+              =+  fox=(disc inp(p.p [%atom p.typ ~]) sen)
+              ?~  fox  ~
+              ?>  ?=([%leaf ^] +.u.fox)
+              ?:  ?=(?(%n %tas) p.typ)  fox
+              `[sen [%leaf '%' p.+.u.fox]]
         ==
-      :+  %tree
-        %^    cat
-            3
-          p.i.p.din
-        (cat 3 p.i.t.p.din p.i.t.t.p.din)
-      q.i.p.din
-    q.ham
-  ::
-  ++  dole
-    ^-  cape
-    =+  gil=*(set type)
-    =+  dex=[p=*(map type @) q=*(map @ wine)]
-    =<  [q.p q]
-    |-  ^-  [p=[p=(map type @) q=(map @ wine)] q=wine]
-    =-  [p.tez (doge q.p.tez q.tez)]
-    ^=  tez
-    ^-  [p=[p=(map type @) q=(map @ wine)] q=wine]
-    ?:  (~(meet ut sut) -:!>(*type))
-      [dex %type]
-    ?-    sut
-        %noun      [dex sut]
-        %void      [dex sut]
-        [%atom *]  [dex ?~(q.sut [%mato p.sut] [%pear p.sut u.q.sut])]
-        [%cell *]
-      =+  hin=$(sut p.sut)
-      =+  yon=$(dex p.hin, sut q.sut)
-      :-  p.yon
-      :-  %plot
-      ?:(?=([%plot *] q.yon) [q.hin p.q.yon] [q.hin q.yon ~])
-    ::
-        [%core *]
-      =+  yad=$(sut p.sut)
-      :-  p.yad
-      =+  ^=  doy  ^-  [p=(list @ta) q=wine]
-          ?:  ?=([%core *] q.yad)
-            [p.q.yad q.q.yad]
-          [~ q.yad]
-      :-  %core
-      :_  q.doy
-      :_  p.doy
-      %^  cat  3
-        %~  rent  co
-        :+  %$  %ud
-        %-  ~(rep by (~(run by q.r.q.sut) |=(tome ~(wyt by q.+<))))
-        |=([[@ a=@u] b=@u] (add a b))
-      %^  cat  3
-        ?-(r.p.q.sut %gold '.', %iron '|', %lead '?', %zinc '&')
-      =+  gum=(mug q.r.q.sut)
-      %+  can  3
-      :~  [1 (add 'a' (mod gum 26))]
-          [1 (add 'a' (mod (div gum 26) 26))]
-          [1 (add 'a' (mod (div gum 676) 26))]
+      ::
+      ++  cell
+        ?>  ?=([%cell *] typ)
+        =-  ?~  -  ~
+            `[->- [%rose [[' ' ~] ['[' ~] [']' ~]] ->+]]
+        =-  ?.  ?=([^ ^] -)  ~
+            ?.  ?&  ?=([%cell *] q.typ)
+                    ?=([%rose *] +.u.tal)
+                ==
+              `[-.u.tal [+.u.hed +.u.tal ~]]
+            `[-.u.tal (weld [+.u.hed ~] q.+.u.tal)]
+        ?-  -.inp
+          %&  =+  hed=(disc inp(p p.typ) sen)
+              ?~  hed  [hed=~ tal=~]
+              =+  tal=(disc inp(p q.typ) sen(q ->.u.hed))
+              [hed=hed tal=tal]
+          %|  ?.  ?=(^ q.p.inp)  ~
+              =+  hed=(disc inp(p.p p.typ, q.p -:q.p.inp) sen)
+              ?~  hed  [hed=~ tal=~]
+              =+  tal=(disc inp(p.p q.typ, q.p +:q.p.inp) sen(q ->.u.hed))
+              [hed=hed tal=tal]
+        ==
+      ::
+      ++  core  
+        ?>  ?=([%core *] typ)
+        =+  res=(disc [%& p.typ] sen)
+        ?~  res  ~
+        :-  ~
+        :-  -.u.res
+        :+  %rose  [[' ' ~] ['<' ~] ['>' ~]]
+        :_  ?:  ?&  ?=([%rose *] +.u.res)
+                    =([[' ' ~] ['<' ~] ['>' ~]] p.+.u.res) 
+                ==
+              q.+.u.res 
+            [+.u.res ~]
+        :-  %leaf
+        %+  rip  3
+        %^  cat  3
+            %~  rent  co
+            :+  %$  %ud
+            %-  ~(rep by (~(run by q.r.q.typ) |=(tome ~(wyt by q.+<))))
+            |=([[@ a=@u] b=@u] (add a b))
+        %^  cat  3
+            ?-(r.p.q.typ %gold '.', %iron '|', %lead '?', %zinc '&')
+        =+  gum=(mug q.r.q.typ)
+        %+  can  3
+        :~  [1 (add 'a' (mod gum 26))]
+            [1 (add 'a' (mod (div gum 26) 26))]
+            [1 (add 'a' (mod (div gum 676) 26))]
+        ==
+      ::
+      ++  hint
+        ?>  ?=([%hint *] typ)
+        =+  hin=?-(-.inp %& inp(p q.typ), %| inp(p.p q.typ))
+        ::
+        :: ~&  ['hint' q.p.typ]
+        ?.  ?=([%know *] q.p.typ)  (disc hin sen)
+        ::
+        ?:  ?&(?=(%lest veb) -.inp)
+          ?@  tud=p.q.p.typ  `[sen (cat 3 '#' mark.tud)]
+          `[sen (rap 3 '#' auth.tud '+' (spat type.tud) ~)]
+        ::
+        ?^  p.q.p.typ  (disc hin sen)
+        ::
+        ?^  custom=(~(get by pin) p.q.p.typ)
+          (u.custom hin sen disc)
+        ::
+        ?^  def=(defs(typ q.typ) p.q.p.typ)  def
+        ::
+        ?.  -.inp  (disc hin sen)
+        `[sen (cat 3 '#' p.q.p.typ)]
+      ::
+      ++  face
+        ?>  ?=([%face *] typ)
+        ?-  -.inp
+          %&  =+  (disc inp(p q.typ) sen)
+              ?~  -  ~
+              ?^  p.typ   -
+              `[-.u.- [%palm [['=' ~] ~ ~ ~] [%leaf (trip p.typ)] +.u.- ~]]
+          %|  (disc inp(p.p q.typ) sen)
+        ==
+      ::
+      ++  fork
+        ?>  ?=([%fork *] typ)
+        =+  yed=(sort ~(tap in p.typ) aor)
+        ?-  -.inp
+          %&  =-  `[-< [%rose [[' ' ~] ['?' '(' ~] [')' ~]] ->]]
+              |-  ^-  [seen (^list tank)]
+              ?~  yed  [sen ~]
+              =+  mor=$(yed t.yed)
+              =+  dis=(disc inp(p i.yed) sen(q ->:mor))
+              ?~   dis  [sen ~]
+              [-:u.dis +:u.dis +:mor]
+          %|  |-  ^-  (^unit [seen tank])
+              ?~  yed  ~
+              =+  (disc inp(p.p i.yed) sen)
+              ?^(- - $(yed t.yed))
+        ==
+      ::
+      ++  hold
+      ?>  ?=([%hold *] typ)
+      ?-  -.inp
+        %&  =+  lef=|=(num=@ud ['#' ~(rend co [%$ %ud num])])
+            ?^  hey=(~(get by q.sen) typ)
+              `[sen [%leaf (lef u.hey)]]
+            ?:  (~(has in p.sen) inp)
+              =+  dyr=+(~(wyt by q.sen))
+              `[sen(q (~(put by q.sen) typ dyr)) [%leaf (lef dyr)]]
+            =+  rom=(disc inp(p ~(repo ut typ)) sen(p (~(put in p.sen) inp)))
+            ?~  rom  ~
+            :-  ~
+            :-  sen(q ->.u.rom)
+            ?~  rey=(~(get by q.-.u.rom) typ)  +.u.rom
+            [%palm [['.' ~] ~ ~ ~] [%leaf '^' (lef u.rey)] +.u.rom ~]
+        %|  ?:  (~(has in p.sen) inp)  ~
+            (disc inp(p.p ~(repo ut typ)) sen(p (~(put in p.sen) inp)))
       ==
+      :: 
+      ++  unit
+        ?>  ?=([%fork *] typ)
+        =+  yed=(sort ~(tap in p.typ) aor)
+        ?>  ?=([* [[%cell * [%face *]] ~]] yed)
+        ?-    -.inp
+          %&  =+  (disc [%& +<+>+>.yed] sen)
+              ?~  -  ~
+              `[->- [%rose [" " "u(" ")"] ->+ ~]]
+          %|  ?:  =(q.p.inp ~)  `[sen [%leaf "~"]]
+              =+  (disc [%| +<+>.yed +:q.p.inp] sen)
+              ?~  -  ~
+              `[->- [%rose [" " "[" "]"] [[%leaf "~"] ->+ ~]]]
+        ==
+      ::
+      ++  list
+        ?>  ?=([%fork *] typ)
+        =+  yed=(sort ~(tap in p.typ) aor)
+        ?>  ?=([* [[%cell [%face *] [%face *]] ~]] yed)
+        =+  =+  yod=+<+<+>.yed
+            |-  ^-  term
+            ?:  =(-:!>(*^tape) yod)             %wall
+            ?:  ?=([%atom %'tD' ~] yod)         %tape
+            ?:  ?=([%atom %t ~] yod)            %wain  ::  all (list @t) are wain?
+            ?:  ?=([%atom %ta ~] yod)           %path
+            ?.  ?=(?([%hint *] [%hold *]) yod)  %list
+            $(yod ~(repo ut yod))
+        ?.  ?=(%list -)  (defs -)
+        ?-  -.inp
+          %&  =+  (disc inp(p +<+<+>.yed) sen)
+              ?~  -  ~
+              `[->- [%rose [" " "(list " ")"] [->+ ~]]]
+          %|  =+  (deck ;;((^list *) q.p.inp) +<+<+>.yed)
+              `[->- [%rose [" " "~[" "]"] ->+]]
+        ==
+      ::
+      ++  path
+        ?-  -.inp
+          %&  `[sen [%leaf '/' ~]]
+          %|  =+  res=(deck ;;((^list *) q.p.inp) [%atom %tas ~])
+              =+  (turn ->+ |=(lef=tank ?>(?=([%leaf *] lef) [%leaf +.p.lef])))
+              `[-.+.res [%rose [['/' ~] ['/' ~] ~] -]]
+          ==
+      :: 
+      ++  tape
+        ?-  -.inp
+          %&  `[sen [%leaf '"' '"' ~]]
+          %|  `[sen [%leaf (dash (^tape q.p.inp) '"' "\{")]]
+        ==
+      ::
+      ++  wain
+        ?-  -.inp
+          %&  `[sen [%leaf '*' '\'' '\'' ~]]
+          %|  =+  (deck ;;((^list *) q.p.inp) [%atom %t ~])
+              `[->- [%rose [[' ' ~] ['<' '|' ~] ['|' '>' ~]] ->+]]
+        ==
+      ::
+      ++  wall
+        ?-  -.inp
+          %&  `[sen [%leaf '*' '"' '"' ~]]
+          %|  =+  (deck ;;((^list *) q.p.inp) -:!>(*(^list ^tape)))
+              `[->- [%rose [[' ' ~] ['<' '<' ~] ['>' '>' ~]] ->+]]
+        ==
+      ::
+      ++  tree
+        ?>  ?=([%fork *] typ)
+        =+  yed=(sort ~(tap in p.typ) aor)
+        ?>  ?=([* [%cell [%face *] *] ~] yed)
+        =+  typ=~(repo ut +<+<+>.yed)
+        ?-  -.inp
+          %&  =+  (disc inp(p typ) sen)
+              ?~  -  ~
+              `[->- [%rose [" " "(tree " ")"] [->+ ~]]]
+          %|  (disc inp(p.p ^typ) sen)  ::  TODO: better tree printing
+        ==
+      ::
+      ++  map
+        =+  fok=~(repo ut ~(repo ut typ))
+        ?>  ?=([%fork *] fok)
+        =+  yed=(sort ~(tap in p.fok) aor)
+        ?>  ?=([* [%cell [%face *] *] ~] yed)
+        =+  tip=~(repo ut +<+<+>.yed)
+        ?>  ?=([%cell [%face *] [%face *]] tip)
+        ?-  -.inp
+          %&  =+  key=(disc inp(p +<+>:tip) sen)
+              ?~  key  ~
+              =+  val=(disc inp(p +>+>:tip) sen(q ->.u.key))
+              ?~  val  ~
+              `[-.u.val [%rose [" " "(map " ")"] [+.u.key +.u.val ~]]]
+          %|  =+  (deck ~(tap by ;;((^map * *) q.p.inp)) tip)
+              `[->- [%rose [[' ' ~] ['{' ~] ['}' ~]] ->+]]
+        ==
+      ::
+      ++  set
+        =+  fok=~(repo ut ~(repo ut typ))
+        ?>  ?=([%fork *] fok)
+        =+  yed=(sort ~(tap in p.fok) aor)
+        ?>  ?=([* [%cell [%face *] *] ~] yed)
+        ?-  -.inp
+          %&  =+  (disc inp(p +<+<+>.yed) sen)
+              ?~  -   ~
+              `[-<- [%rose [" " "(set " ")"] [->+ ~]]]
+          %|  =+  (deck ~(tap in ;;((^set *) q.p.inp)) +<+<+>.yed)
+              `[->- [%rose [[' ' ~] ['{' ~] ['}' ~]] ->+]]
+        ==
+      ::
+      ++  qeu
+        =+  fok=~(repo ut ~(repo ut typ))
+        ?>  ?=([%fork *] fok)
+        =+  yed=(sort ~(tap in p.fok) aor)
+        ?>  ?=([* [%cell [%face *] *] ~] yed)
+        ?-  -.inp
+          %&  =+  (disc inp(p +<+<+>.yed) sen)
+              ?~  -  ~
+              `[->- [%rose [" " "(qeu " ")"] [->+ ~]]]
+          %|  =+  (deck ~(tap to ;;((^qeu *) q.p.inp)) +<+<+>.yed)
+              `[->- [%rose [[' ' ~] ['{' ~] ['}' ~]] ->+]]
+        ==
+      --
     ::
-        [%hint *]
-      =+  yad=$(sut q.sut)
-      ?.  ?=(%know -.q.p.sut)  yad
-      [p.yad [%name p.q.p.sut q.yad]]
+    ++  deck                                            ::  pprint items
+      |=  [items=(list *) typ=type]
+      :-  ~  %+  reel  items
+      |=  [n=* acc=[seen (list tank)]]
+      =+  res=(disc [%| [typ n]] -.acc)
+      ?~(res acc [-.u.res [+.u.res +.acc]])
     ::
-        [%face *]
-      =+  yad=$(sut q.sut)
-      ?^(p.sut yad [p.yad [%face p.sut q.yad]])
-    ::
-        [%fork *]
-      =+  yed=(sort ~(tap in p.sut) aor)
-      =-  [p [%bcwt q]]
-      |-  ^-  [p=[p=(map type @) q=(map @ wine)] q=(list wine)]
-      ?~  yed
-        [dex ~]
-      =+  mor=$(yed t.yed)
-      =+  dis=^$(dex p.mor, sut i.yed)
-      [p.dis q.dis q.mor]
-    ::
-        [%hold *]
-      =+  hey=(~(get by p.dex) sut)
-      ?^  hey
-        [dex [%stop u.hey]]
-      ?:  (~(has in gil) sut)
-        =+  dyr=+(~(wyt by p.dex))
-        [[(~(put by p.dex) sut dyr) q.dex] [%stop dyr]]
-      =+  rom=$(gil (~(put in gil) sut), sut ~(repo ut sut))
-      =+  rey=(~(get by p.p.rom) sut)
-      ?~  rey
-        rom
-      [[p.p.rom (~(put by q.p.rom) u.rey q.rom)] [%stop u.rey]]
-    ==
-  ::
-  ++  duck  (dial dole)
-  ++  doxx
-    |=  typ=type
-    ^-  type
-    typ
-    ::  ::  NOTE: look to +doge for implementation specifics (i.e. type
-    ::  ::  identifying heuristics)
-    ::  =+  ham=dole
-    ::  =+  tag=|=(mar=term `type`[%hint p=[typ %know mar] q=typ])
-    ::  ::  if we see a type we recognize, enclose it in the following:
-    ::  ::  [%hint [typ %know %mark-name-here] typ]
-    ::  ::  TODO: how do we heuristically recognize types?
-    ::  ?-    typ
-    ::      ?(%noun %void)
-    ::    typ
-    ::  ::
-    ::      [%atom *]
-    ::    (tag ?~(q.sut %mato %pear))
-    ::  ::
-    ::  ==
+    ++  dash
+      |=  [mil=tape lim=char lam=tape]
+      ^-  tape
+      =/  esc  (~(gas in *(set @tD)) lam)
+      :-  lim
+      |-  ^-  tape
+      ?~  mil  [lim ~]
+      ?:  ?|  =(lim i.mil)
+              =('\\' i.mil)
+              (~(has in esc) i.mil)
+          ==
+        ['\\' i.mil $(mil t.mil)]
+      ?:  (lte ' ' i.mil)
+        [i.mil $(mil t.mil)]
+      ['\\' ~(x ne (rsh 2 i.mil)) ~(x ne (end 2 i.mil)) $(mil t.mil)]
+    --
   --
 --
